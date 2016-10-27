@@ -48,3 +48,7 @@ if (!argv.h && !argv.help) {
   };
   runForever();
 }
+
+process.on('SIGTERM', () => {
+  process.exit(0);
+});
