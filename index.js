@@ -20,13 +20,19 @@ const argv = yargs
   default: os.hostname,
   type: 'string'
 })
+.option('output', {
+  describe: 'log output. json or console',
+  default: 'json',
+  type: 'string'
+})
 .help('h')
 .alias('h', 'help')
 .env(true)
 .argv;
 
 const log = new Logr({
-  defaultTags: [argv.machine]
+  defaultTags: [argv.machine],
+  type: argv.output
 });
 const options = {
   cpu: {
