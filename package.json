@@ -11,9 +11,9 @@
   "author": "First+Third",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "3.0.2",
-    "eslint-config-firstandthird": "3.0.2",
-    "eslint-plugin-import": "^1.14.0",
+    "eslint": "3.12.2",
+    "eslint-config-firstandthird": "3.1.0",
+    "eslint-plugin-import": "^2.2.0",
     "chai": "^3.5.0",
     "mocha": "^3.0.2"
   },
@@ -21,6 +21,6 @@
     "dockerode": "^2.3.0",
     "logr": "^1.11.0",
     "memorystream": "^0.3.1",
-    "yargs": "^4.8.1"
+    "yargs": "^6.5.0"
   }
 }
