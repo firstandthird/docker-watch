@@ -1,7 +1,7 @@
 {
-  "name": "docker-monitor",
+  "name": "docker-watch",
   "version": "1.0.0",
-  "description": "a persistent CPU monitor for your docker instances",
+  "description": "a persistent monitor to tell you when your docker instances start/stop",
   "main": "index.js",
   "directories": {},
   "scripts": {
@@ -9,6 +9,9 @@
   },
   "author": "First+Third",
   "license": "MIT",
+  "esLintConfig" : {
+    "extends": "firstandthird"
+  },
   "devDependencies": {
     "eslint": "^3.9.1",
     "eslint-config-firstandthird": "^3.2.0",
