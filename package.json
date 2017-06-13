@@ -9,7 +9,7 @@
   },
   "author": "First+Third",
   "license": "MIT",
-  "esLintConfig" : {
+  "eslintConfig" : {
     "extends": "firstandthird"
   },
   "devDependencies": {
