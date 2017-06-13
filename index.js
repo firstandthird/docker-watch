@@ -1,54 +1,57 @@
 #!/usr/bin/env node
 'use strict';
-const Watcher = require('./lib/DockerWatcher.js');
-const yargs = require('yargs');
-const os = require('os');
+const DockerEvents = require('docker-events');
+const Dockerode = require('dockerode');
 const Logr = require('logr');
-const argv = yargs
-.option('cpu_threshold', {
-  describe: 'threshold above which CPU is considered in elevated state',
-  default: 50,
-  type: 'number'
-})
-.option('cpu_duration', {
-  describe: 'duration in milliseconds that CPU can be in elevated state before triggering a warning',
-  default: 50,
-  type: 'number'
-})
-.option('machine', {
-  describe: 'an identifier this machine can use when warning of elevated state',
-  default: os.hostname,
-  type: 'string'
-})
-.option('output', {
-  describe: 'log output. json or console',
-  default: 'json',
-  type: 'string'
-})
-.help('h')
-.alias('h', 'help')
-.env(true)
-.argv;
+const logrSlack = require('logr-slack');
+const logrConsole = require('logr-console-color');
 
-const log = new Logr({
-  defaultTags: [argv.machine],
-  type: argv.output
-});
-const options = {
-  cpu: {
-    threshold: argv.cpu_threshold,
-    duration: argv.cpu_duration
+const colors = {
+  start: 'bgGreen',
+  stop: 'bgRed'
+};
+
+const logOptions = {
+  reporters: {
+    consoleColor: {
+      reporter: logrConsole,
+      options: {
+        appColor: true,
+        colors
+      }
+    }
   }
 };
-if (!argv.h && !argv.help) {
-  const watcher = new Watcher(argv.machine, options, log);
-  watcher.startAll();
-  const runForever = () => {
-    setTimeout(runForever, 120000);
-  };
-  runForever();
-}
 
-process.on('SIGTERM', () => {
-  process.exit(0);
+if (process.env.SLACK_HOOK) {
+  logOptions.reporters.slack = {
+    reporter: logrSlack,
+    options: {
+      username: 'docker-watch',
+      slackHook: process.env.SLACK_HOOK,
+      tagColors: {
+        start: 'good',
+        stop: 'danger'
+      },
+      iconURL: 'https://www.docker.com/sites/default/files/vertical_small.png'
+    }
+  };
+}
+const log = Logr.createLogger(logOptions);
+
+const emitter = new DockerEvents({
+  docker: new Dockerode()
+});
+emitter.start();
+
+emitter.on('connect', () => {
+  log(['docker-monitor', 'connected'], 'connected to docker api');
+});
+
+emitter.on('start', (message) => {
+  log(['docker-monitor', 'start'], { name: message.from, id: message.id });
+});
+
+emitter.on('stop', (message) => {
+  log(['docker-monitor', 'stop'], { name: message.from, id: message.id });
 });
