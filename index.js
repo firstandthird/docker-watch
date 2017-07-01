@@ -44,13 +44,13 @@ const emitter = new DockerEvents({
 emitter.start();
 
 emitter.on('connect', () => {
-  log(['docker-monitor', 'connected'], 'connected to docker api');
+  log(['docker-watch', 'connected'], 'connected to docker api');
 });
 
 emitter.on('start', (message) => {
-  log(['docker-monitor', 'start'], { name: message.from, id: message.id });
+  log(['docker-watch', 'start'], { name: message.from, id: message.id });
 });
 
 emitter.on('stop', (message) => {
-  log(['docker-monitor', 'stop'], { name: message.from, id: message.id });
+  log(['docker-watch', 'stop'], { name: message.from, id: message.id });
 });
