@@ -5,6 +5,7 @@
   "main": "index.js",
   "directories": {},
   "scripts": {
+    "start": "node index.js",
     "test": "tap test"
   },
   "author": "First+Third",
@@ -21,7 +22,7 @@
     "docker-events": "0.0.2",
     "dockerode": "^2.5.0",
     "logr": "^2.2.0",
-    "logr-console-color": "^1.3.1",
+    "logr-flat": "^2.0.0",
     "logr-slack": "^1.1.0"
   }
 }

@@ -4,7 +4,6 @@ const DockerEvents = require('docker-events');
 const Dockerode = require('dockerode');
 const Logr = require('logr');
 const logrSlack = require('logr-slack');
-const logrConsole = require('logr-console-color');
 
 const colors = {
   start: 'bgGreen',
@@ -13,8 +12,8 @@ const colors = {
 
 const logOptions = {
   reporters: {
-    consoleColor: {
-      reporter: logrConsole,
+    flat: {
+      reporter: require('logr-flat'),
       options: {
         appColor: true,
         colors

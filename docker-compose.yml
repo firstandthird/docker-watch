@@ -1,7 +1,5 @@
 app:
   build: '.'
-  command: '--output console'
   volumes:
     - '/var/run/docker.sock:/var/run/docker.sock:ro'
-    - '/app/node_modules'
 
