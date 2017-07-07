@@ -38,6 +38,10 @@ if (process.env.SLACK_HOOK) {
 }
 const log = Logr.createLogger(logOptions);
 
+const slackNotify = process.env.SLACK_NOTIFY ? process.env.SLACK_NOTIFY.split(',') : [];
+
+log(['docker-watch', 'initializing'], `docker-watch will match against: ${slackNotify}`);
+
 const emitter = new DockerEvents({
   docker: new Dockerode()
 });
@@ -48,9 +52,25 @@ emitter.on('connect', () => {
 });
 
 emitter.on('start', (message) => {
-  log(['docker-watch', 'start'], { name: message.from, id: message.id });
+  const tags = ['docker-watch', 'start'];
+  for (let i = 0; i < slackNotify.length; i++) {
+    const match = message.from.match(slackNotify[i]);
+    if (match && match.length > 0) {
+      tags.push('notify');
+      continue;
+    }
+  }
+  log(tags, { name: message.from, id: message.id });
 });
 
 emitter.on('stop', (message) => {
-  log(['docker-watch', 'stop'], { name: message.from, id: message.id });
+  const tags = ['docker-watch', 'stop'];
+  for (let i = 0; i < slackNotify.length; i++) {
+    const match = message.from.match(slackNotify[i]);
+    if (match && match.length > 0) {
+      tags.push('notify');
+      continue;
+    }
+  }
+  log(tags, { name: message.from, id: message.id });
 });
