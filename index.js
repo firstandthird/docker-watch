@@ -5,6 +5,8 @@ const Dockerode = require('dockerode');
 const Logr = require('logr');
 const logrSlack = require('logr-slack');
 
+const verboseMode = process.argv[2] === 'verbose';
+
 const colors = {
   start: 'bgGreen',
   stop: 'bgRed'
@@ -51,8 +53,7 @@ emitter.on('connect', () => {
   log(['docker-watch', 'connected'], 'connected to docker api');
 });
 
-emitter.on('start', (message) => {
-  const tags = ['docker-watch', 'start'];
+const handleMessage = (message, tags) => {
   for (let i = 0; i < slackNotify.length; i++) {
     const match = message.from.match(slackNotify[i]);
     if (match && match.length > 0) {
@@ -60,17 +61,22 @@ emitter.on('start', (message) => {
       continue;
     }
   }
+  if (verboseMode) {
+    return log(tags, message);
+  }
   log(tags, { name: message.from, id: message.id });
-});
+};
 
-emitter.on('stop', (message) => {
-  const tags = ['docker-watch', 'stop'];
-  for (let i = 0; i < slackNotify.length; i++) {
-    const match = message.from.match(slackNotify[i]);
-    if (match && match.length > 0) {
-      tags.push('notify');
-      continue;
-    }
-  }
-  log(tags, { name: message.from, id: message.id });
-});
+const registerEvents = (eventList) => {
+  eventList.forEach((eventName) => {
+    emitter.on(eventName, (message) => {
+      handleMessage(message, ['docker-watch', eventName]);
+    });
+  });
+};
+
+if (verboseMode) {
+  registerEvents(['start', 'stop', 'connect', 'disconnect', '_message', 'create', 'die', 'destroy']);
+} else {
+  registerEvents(['start', 'stop']);
+}
