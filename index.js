@@ -15,6 +15,7 @@ const logOptions = {
     flat: {
       reporter: require('logr-flat'),
       options: {
+        timestamp: false,
         appColor: true,
         colors
       }
@@ -26,6 +27,7 @@ if (process.env.SLACK_HOOK) {
   logOptions.reporters.slack = {
     reporter: logrSlack,
     options: {
+      timestamp: false,
       username: 'docker-watch',
       slackHook: process.env.SLACK_HOOK,
       tagColors: {
