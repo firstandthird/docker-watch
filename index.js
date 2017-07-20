@@ -5,7 +5,7 @@ const Dockerode = require('dockerode');
 const Logr = require('logr');
 const logrSlack = require('logr-slack');
 
-const verboseMode = process.argv[2] === 'verbose';
+const verboseMode = process.env.VERBOSE === '1';
 
 const colors = {
   start: 'bgGreen',
@@ -61,10 +61,11 @@ const handleMessage = (message, tags) => {
       continue;
     }
   }
-  if (verboseMode) {
-    return log(tags, message);
+  // some event messages don't have from and id fields:
+  if (message && message.from && message.id) {
+    return log(tags, { name: message.from, id: message.id });
   }
-  log(tags, { name: message.from, id: message.id });
+  log(tags, message);
 };
 
 const registerEvents = (eventList) => {
