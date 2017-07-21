@@ -1,5 +1,9 @@
 app:
   build: '.'
+  environment:
+    VERBOSE: 1
+    SLACK_HOOK:
+    SLACK_NOTIFY:
   volumes:
     - '/var/run/docker.sock:/var/run/docker.sock:ro'
 

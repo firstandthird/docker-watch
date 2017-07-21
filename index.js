@@ -4,6 +4,7 @@ const DockerEvents = require('docker-events');
 const Dockerode = require('dockerode');
 const Logr = require('logr');
 const logrSlack = require('logr-slack');
+const get = require('lodash.get');
 
 const verboseMode = process.env.VERBOSE === '1';
 
@@ -17,6 +18,7 @@ const logOptions = {
     flat: {
       reporter: require('logr-flat'),
       options: {
+        timestamp: false,
         appColor: true,
         colors
       }
@@ -30,6 +32,8 @@ if (process.env.SLACK_HOOK) {
     options: {
       username: 'docker-watch',
       slackHook: process.env.SLACK_HOOK,
+      filter: ['notify'],
+      hideTags: true,
       tagColors: {
         start: 'good',
         stop: 'danger'
@@ -42,7 +46,9 @@ const log = Logr.createLogger(logOptions);
 
 const slackNotify = process.env.SLACK_NOTIFY ? process.env.SLACK_NOTIFY.split(',') : [];
 
-log(['docker-watch', 'initializing'], `docker-watch will match against: ${slackNotify}`);
+if (slackNotify.length !== 0) {
+  log(['docker-watch', 'initializing'], `docker-watch will match against: ${slackNotify}`);
+}
 
 const emitter = new DockerEvents({
   docker: new Dockerode()
@@ -50,21 +56,19 @@ const emitter = new DockerEvents({
 emitter.start();
 
 emitter.on('connect', () => {
-  log(['docker-watch', 'connected'], 'connected to docker api');
+  log(['connected'], 'connected to docker api');
 });
 
 const handleMessage = (message, tags) => {
-  // verbose always logs everything:
-  if (verboseMode) {
-    tags.push('notify');
-    return log(tags, message);
-  }
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
-  for (let i = 0; i < slackNotify.length; i++) {
-    const match = message.from ? message.from.match(slackNotify[i]) : false;
-    if (match && match.length > 0) {
-      tags.push('notify');
-      continue;
+  const name = get(message, 'Actor.Attributes.name', '');
+  if (name) {
+    for (let i = 0; i < slackNotify.length; i++) {
+      const match = name.match(slackNotify[i]);
+      if (match && match.length > 0) {
+        tags.push('notify');
+        continue;
+      }
     }
   }
   log(tags, message);
@@ -73,7 +77,7 @@ const handleMessage = (message, tags) => {
 const registerEvents = (eventList) => {
   eventList.forEach((eventName) => {
     emitter.on(eventName, (message) => {
-      handleMessage(message, ['docker-watch', eventName]);
+      handleMessage(message, [eventName]);
     });
   });
 };
