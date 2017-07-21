@@ -54,11 +54,12 @@ emitter.on('connect', () => {
 });
 
 const handleMessage = (message, tags) => {
-  // verbose just logs everything and exits:
+  // verbose always logs everything:
   if (verboseMode) {
     tags.push('notify');
     return log(tags, message);
   }
+  // non-verbose mode logs matching tags for 'start' and 'stop' events:
   for (let i = 0; i < slackNotify.length; i++) {
     const match = message.from ? message.from.match(slackNotify[i]) : false;
     if (match && match.length > 0) {
