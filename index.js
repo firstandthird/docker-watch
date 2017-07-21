@@ -61,10 +61,7 @@ const handleMessage = (message, tags) => {
       continue;
     }
   }
-  // some event messages don't have from and id fields:
-  if (message && message.from && message.id) {
-    return log(tags, { name: message.from, id: message.id });
-  }
+  // log the whole message:
   log(tags, message);
 };
 
