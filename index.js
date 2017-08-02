@@ -66,6 +66,7 @@ const handleMessage = (message, tags) => {
     for (let i = 0; i < slackNotify.length; i++) {
       const match = name.match(slackNotify[i]);
       if (match && match.length > 0) {
+        tags.unshift(name);
         tags.push('notify');
         continue;
       }
