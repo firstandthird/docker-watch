@@ -8,7 +8,7 @@ const get = require('lodash.get');
 
 const verboseMode = process.env.VERBOSE === '1';
 
-const colors = {
+const tagColors = {
   start: 'bgGreen',
   stop: 'bgRed'
 };
@@ -20,7 +20,7 @@ const logOptions = {
       options: {
         timestamp: false,
         appColor: true,
-        colors
+        tagColors
       }
     }
   }
