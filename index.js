@@ -30,6 +30,7 @@ if (process.env.SLACK_HOOK) {
   logOptions.reporters.slack = {
     reporter: logrSlack,
     options: {
+      timestamp: false,
       username: 'docker-watch',
       slackHook: process.env.SLACK_HOOK,
       filter: ['notify'],
