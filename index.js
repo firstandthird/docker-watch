@@ -8,7 +8,7 @@ const get = require('lodash.get');
 
 const verboseMode = process.env.VERBOSE === '1';
 
-const colors = {
+const tagColors = {
   start: 'bgGreen',
   stop: 'bgRed'
 };
@@ -20,7 +20,7 @@ const logOptions = {
       options: {
         timestamp: false,
         appColor: true,
-        colors
+        tagColors
       }
     }
   }
@@ -63,6 +63,7 @@ const handleMessage = (message, tags) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   const name = get(message, 'Actor.Attributes.name', '');
   if (name) {
+    tags.unshift(name);
     for (let i = 0; i < slackNotify.length; i++) {
       const match = name.match(slackNotify[i]);
       if (match && match.length > 0) {
