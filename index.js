@@ -59,11 +59,21 @@ emitter.on('connect', () => {
   log(['connected'], 'connected to docker api');
 });
 
-const handleMessage = (message, tags) => {
+const logEvents = {
+  container: ['start', 'stop', 'health_status', 'kill', 'die'],
+  service: ['update', 'remove', 'create'],
+  node: ['create', 'remove', 'update']
+}
+
+const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
+  if (!message) {
+    return;
+  }
+  const tags = []
   const name = get(message, 'Actor.Attributes.name', '');
   if (name) {
-    tags.unshift(name);
+    tags.push(name);
     for (let i = 0; i < slackNotify.length; i++) {
       const match = name.match(slackNotify[i]);
       if (match && match.length > 0) {
@@ -72,19 +82,12 @@ const handleMessage = (message, tags) => {
       }
     }
   }
-  log(tags, message);
+  tags.push(message.Type);
+  tags.push(message.Action);
+
+  if (verboseMode || (logEvents[message.Type] && logEvents[message.Type].indexOf(message.Action) !== -1)) {
+    log(tags, message);
+  }
 };
 
-const registerEvents = (eventList) => {
-  eventList.forEach((eventName) => {
-    emitter.on(eventName, (message) => {
-      handleMessage(message, [eventName]);
-    });
-  });
-};
-
-if (verboseMode) {
-  registerEvents(['start', 'stop', 'connect', 'disconnect', '_message', 'create', 'die', 'destroy']);
-} else {
-  registerEvents(['start', 'stop']);
-}
+emitter.on('_message', handleMessage);
