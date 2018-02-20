@@ -20,6 +20,9 @@ const logOptions = {
       options: {
         timestamp: false,
         appColor: true,
+        theme: {
+          keys: 'cyan'
+        },
         tagColors
       }
     }

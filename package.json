@@ -22,8 +22,8 @@
     "docker-events": "0.0.2",
     "dockerode": "^2.5.0",
     "lodash.get": "^4.4.2",
-    "logr": "^2.2.0",
-    "logr-flat": "^2.0.0",
+    "logr": "^2.7.0",
+    "logr-flat": "^3.1.0",
     "logr-slack": "^1.1.0"
   }
 }
