@@ -23,7 +23,8 @@ const logOptions = {
         theme: {
           keys: 'cyan'
         },
-        tagColors
+        tagColors,
+        flatDepth: 3
       }
     }
   }
