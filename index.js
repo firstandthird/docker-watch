@@ -65,8 +65,9 @@ emitter.on('connect', () => {
 const logEvents = {
   container: ['start', 'stop', 'health_status', 'kill', 'die'],
   service: ['update', 'remove', 'create'],
+  image: ['pull', 'delete'],
   node: ['create', 'remove', 'update']
-}
+};
 
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
