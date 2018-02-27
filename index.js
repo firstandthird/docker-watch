@@ -75,7 +75,7 @@ const handleMessage = (message) => {
   if (!message) {
     return;
   }
-  const tags = []
+  const tags = [];
   const name = get(message, 'Actor.Attributes.name', '');
   if (name) {
     tags.push(name);
@@ -89,7 +89,9 @@ const handleMessage = (message) => {
   }
   tags.push(message.Type);
   tags.push(message.Action);
-
+  if (message.Action === 'die' && message.Actor.Attributes.exitCode === '1') {
+    tags.push('error');
+  }
   if (verboseMode || (logEvents[message.Type] && logEvents[message.Type].indexOf(message.Action) !== -1)) {
     log(tags, message);
   }
