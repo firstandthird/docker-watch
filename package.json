@@ -1,6 +1,6 @@
 {
   "name": "docker-watch",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "a persistent monitor to tell you when your docker instances start/stop",
   "main": "index.js",
   "directories": {},
