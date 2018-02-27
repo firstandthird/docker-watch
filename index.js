@@ -64,7 +64,7 @@ emitter.on('connect', () => {
 });
 
 const logEvents = {
-  container: ['start', 'stop', 'health_status', 'kill', 'die'],
+  container: ['restart', 'start', 'stop', 'health_status', 'kill', 'die'],
   service: ['update', 'remove', 'create'],
   image: ['pull', 'delete'],
   node: ['create', 'remove', 'update']
