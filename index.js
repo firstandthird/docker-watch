@@ -92,6 +92,13 @@ const handleMessage = (message) => {
   if (message.Action === 'die' && message.Actor.Attributes.exitCode === '1') {
     tags.push('error');
   }
+  if (tags.includes('health_status: unhealthy')) {
+    tags.push('error');
+  }
+  if (message.Actor.Attributes.updateState && message.Actor.Attributes.updateState.new === 'rollback_started') {
+    tags.push('error');
+    tags.push('rollback');
+  }
   if (verboseMode || (logEvents[message.Type] && logEvents[message.Type].indexOf(message.Action) !== -1)) {
     log(tags, message);
   }
