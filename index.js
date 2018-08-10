@@ -9,11 +9,24 @@ const get = require('lodash.get');
 const verboseMode = process.env.VERBOSE === '1';
 
 const tagColors = {
+  //  green tags:
   start: 'bgGreen',
-  stop: 'bgRed'
+  create: 'bgGreen',
+  // red tags:
+  stop: 'bgRed',
+  die: 'bgRed',
+  // yellow tags:
+  kill: 'bgYellow',
+  remove: 'bgYellow',
+  // message-emitters are all blue:
+  container: 'bgBlue',
+  image: 'bgBlue',
+  service: 'bgBlue',
+  node: 'bgBlue',
 };
 
 const logOptions = {
+  includeDetails: false,
   reporters: {
     flat: {
       reporter: require('logr-flat'),
@@ -70,6 +83,16 @@ const logEvents = {
   node: ['create', 'remove', 'update']
 };
 
+const cleanLogs = (message) => {
+  delete message.time;
+  delete message.timeNano;
+  delete message.scope;
+  // delete all 'Actor' properties:
+  if (!logOptions.includeDetails) {
+    delete message.Actor;
+  }
+};
+
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   if (!message) {
@@ -89,16 +112,24 @@ const handleMessage = (message) => {
   }
   tags.push(message.Type);
   tags.push(message.Action);
+  // if exit with error add an error tag:
   if (message.Action === 'die' && message.Actor.Attributes.exitCode === '1') {
     tags.push('error');
   }
+
   if (tags.includes('health_status: unhealthy')) {
     tags.push('error');
   }
-  if (message.Actor.Attributes.updateState && message.Actor.Attributes.updateState.new === 'rollback_started') {
-    tags.push('error');
-    tags.push('rollback');
+  if (message.Actor.Attributes.updateState) {
+    if (message.Type === 'service' && message.Action === 'update' && message.Actor.Attributes.updateState.new) {
+      tags.push(message.Actor.Attributes.updateState.new);
+    }
+    if (message.Actor.Attributes.updateState.new === 'rollback_started') {
+      tags.push('error');
+      tags.push('rollback');
+    }
   }
+  cleanLogs(message);
   if (verboseMode || (logEvents[message.Type] && logEvents[message.Type].indexOf(message.Action) !== -1)) {
     log(tags, message);
   }
