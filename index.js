@@ -18,10 +18,10 @@ const tagColors = {
   // yellow tags:
   kill: 'bgYellow',
   remove: 'bgYellow',
-  // message-emitters are all blue:
+  // message-emitters:
   container: 'bgBlue',
-  image: 'bgBlue',
-  service: 'bgBlue',
+  image: 'bgCyan',
+  service: 'bgGray',
   node: 'bgBlue',
 };
 
