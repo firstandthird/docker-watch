@@ -20,9 +20,9 @@ const tagColors = {
   remove: 'bgYellow',
   // message-emitters:
   container: 'bgBlue',
-  image: 'bgCyan',
-  service: 'bgGray',
-  node: 'bgBlue',
+  image: 'bgMagenta',
+  service: 'bgCyan',
+  node: 'bgGreen',
 };
 
 const logOptions = {
