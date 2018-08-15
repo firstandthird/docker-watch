@@ -26,7 +26,7 @@ const tagColors = {
 };
 
 const logOptions = {
-  includeDetails: false,
+  includeDetails: process.env.INCLUDE_DETAILS === '1',
   reporters: {
     flat: {
       reporter: require('logr-flat'),
