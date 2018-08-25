@@ -5,6 +5,7 @@ const Dockerode = require('dockerode');
 const Logr = require('logr');
 const logrSlack = require('logr-slack');
 const get = require('lodash.get');
+const logrSentry = require('logr-sentry');
 
 const verboseMode = process.env.VERBOSE === '1';
 
@@ -42,7 +43,20 @@ const logOptions = {
     }
   }
 };
-
+if (process.env.SENTRY_DSN) {
+  logOptions.reporters.sentry = {
+    reporter: logrSentry,
+    options: {
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV,
+      logger: 'docker-watch',
+      tags: {
+        env: process.env.NODE_ENV
+      },
+      filter: ['error']
+    }
+  };
+}
 if (process.env.SLACK_HOOK) {
   logOptions.reporters.slack = {
     reporter: logrSlack,
