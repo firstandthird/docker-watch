@@ -48,11 +48,8 @@ if (process.env.SENTRY_DSN) {
     reporter: logrSentry,
     options: {
       dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV,
+      environment: process.env.SENTRY_ENV,
       logger: 'docker-watch',
-      tags: {
-        env: process.env.NODE_ENV
-      },
       filter: ['error']
     }
   };
