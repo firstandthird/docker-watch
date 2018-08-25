@@ -120,11 +120,11 @@ const handleMessage = (message) => {
   if (tags.includes('health_status: unhealthy')) {
     tags.push('error');
   }
-  if (message.Actor.Attributes.updatestate) {
-    if (message.Type === 'service' && message.Action === 'update' && message.Actor.Attributes.updatestate.new) {
-      tags.push(message.Actor.Attributes.updatestate.new);
+  if (message.Actor.Attributes) {
+    if (message.Type === 'service' && message.Action === 'update' && message.Actor.Attributes['updatestate.new']) {
+      tags.push(message.Actor.Attributes['updatestate.new']);
     }
-    if (message.Actor.Attributes.updatestate.new === 'rollback_started') {
+    if (message.Actor.Attributes['updatestate.new'] === 'rollback_started') {
       tags.push('error');
       tags.push('rollback');
     }
