@@ -9,6 +9,8 @@ const logrSentry = require('logr-sentry');
 
 const verboseMode = process.env.VERBOSE === '1';
 
+const alertTags = process.env.ALERT_TAGS ? process.env.ALERT_TAGS.split(',') : [];
+const filterTags = ['error', 'notify'].concat(alertTags);
 const tagColors = {
   //  green tags:
   start: 'bgGreen',
@@ -43,6 +45,7 @@ const logOptions = {
     }
   }
 };
+
 if (process.env.SENTRY_DSN) {
   logOptions.reporters.sentry = {
     reporter: logrSentry,
@@ -50,7 +53,7 @@ if (process.env.SENTRY_DSN) {
       dsn: process.env.SENTRY_DSN,
       environment: process.env.SENTRY_ENV,
       logger: 'docker-watch',
-      filter: ['error']
+      filter: filterTags
     }
   };
 }
@@ -60,7 +63,7 @@ if (process.env.SLACK_HOOK) {
     options: {
       username: 'docker-watch',
       slackHook: process.env.SLACK_HOOK,
-      filter: ['notify'],
+      filter: filterTags,
       hideTags: true,
       tagColors: {
         start: 'good',
@@ -71,13 +74,6 @@ if (process.env.SLACK_HOOK) {
   };
 }
 const log = Logr.createLogger(logOptions);
-
-const slackNotify = process.env.SLACK_NOTIFY ? process.env.SLACK_NOTIFY.split(',') : [];
-
-if (slackNotify.length !== 0) {
-  log(['docker-watch', 'initializing'], `docker-watch will match against: ${slackNotify}`);
-}
-
 const emitter = new DockerEvents({
   docker: new Dockerode()
 });
@@ -86,6 +82,12 @@ emitter.start();
 emitter.on('connect', () => {
   log(['connected'], 'connected to docker api');
 });
+if (process.env.SLACK_HOOK) {
+  log(`Slack reporter is watching tags: ${filterTags}`);
+}
+if (process.env.SENTRY_DSN) {
+  log(`Sentry is watching tags: ${filterTags}`);
+}
 
 const logEvents = {
   container: ['restart', 'start', 'stop', 'health_status', 'health_status: healthy', 'health_status: unhealthy', 'kill', 'die'],
@@ -113,13 +115,6 @@ const handleMessage = (message) => {
   const name = get(message, 'Actor.Attributes.name', '');
   if (name) {
     tags.push(name);
-    for (let i = 0; i < slackNotify.length; i++) {
-      const match = name.match(slackNotify[i]);
-      if (match && match.length > 0) {
-        tags.push('notify');
-        continue;
-      }
-    }
   }
   tags.push(message.Type);
   tags.push(message.Action);
