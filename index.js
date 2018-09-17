@@ -30,21 +30,31 @@ const tagColors = {
 
 const logOptions = {
   includeDetails: process.env.INCLUDE_DETAILS === '1',
-  reporters: {
-    flat: {
-      reporter: require('logr-flat'),
-      options: {
-        timestamp: false,
-        appColor: true,
-        theme: {
-          keys: 'cyan'
-        },
-        tagColors,
-        flatDepth: 3
-      }
-    }
-  }
+  reporters: {}
 };
+
+if (process.env.LOG_TYPE === 'logfmt') {
+  logOptions.reporters.logfmt = {
+    reporter: require('logr-logfmt'),
+    options: {
+      color: true,
+      appColor: true
+    }
+  };
+} else {
+  logOptions.reporters.flat = {
+    reporter: require('logr-flat'),
+    options: {
+      timestamp: false,
+      appColor: true,
+      theme: {
+        keys: 'cyan'
+      },
+      tagColors,
+      flatDepth: 3
+    }
+  };
+}
 
 if (process.env.SENTRY_DSN) {
   logOptions.reporters.sentry = {
