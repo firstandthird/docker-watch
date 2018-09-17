@@ -33,17 +33,12 @@ const logOptions = {
   reporters: {}
 };
 
-if (process.env.LOGR === 'logfmt') {
+if (process.env.LOG_TYPE === 'logfmt') {
   logOptions.reporters.logfmt = {
     reporter: require('logr-logfmt'),
     options: {
-      timestamp: false,
-      appColor: true,
-      theme: {
-        keys: 'cyan'
-      },
-      tagColors,
-      flatDepth: 3
+      color: true,
+      appColor: true
     }
   };
 } else {
