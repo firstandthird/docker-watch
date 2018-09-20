@@ -147,6 +147,7 @@ const handleMessage = (message) => {
   }
   cleanLogs(message);
   if (verboseMode || (logEvents[message.Type] && logEvents[message.Type].indexOf(message.Action) !== -1)) {
+    message.message = `${name} ${message.Type} ${message.Action}`;
     log(tags, message);
   }
 };
