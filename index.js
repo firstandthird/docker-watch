@@ -31,8 +31,6 @@ const logOptions = {
   reporters: {
     flat: {
       options: {
-        timestamp: false,
-        appColor: true,
         theme: {
           keys: 'cyan'
         },
@@ -40,16 +38,8 @@ const logOptions = {
         flatDepth: 3
       }
     },
-    sentry: {
-      options: {
-        logger: 'docker-watch',
-        filter: filterTags
-      }
-    },
     slack: {
       options: {
-        username: 'docker-watch',
-        filter: filterTags,
         hideTags: true,
         tagColors: {
           start: 'good',
