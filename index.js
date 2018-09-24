@@ -2,10 +2,8 @@
 'use strict';
 const DockerEvents = require('docker-events');
 const Dockerode = require('dockerode');
-const Logr = require('logr');
-const logrSlack = require('logr-slack');
+const logall = require('logr-all');
 const get = require('lodash.get');
-const logrSentry = require('logr-sentry');
 
 const verboseMode = process.env.VERBOSE === '1';
 
@@ -30,60 +28,29 @@ const tagColors = {
 
 const logOptions = {
   includeDetails: process.env.INCLUDE_DETAILS === '1',
-  reporters: {}
+  reporters: {
+    flat: {
+      options: {
+        theme: {
+          keys: 'cyan'
+        },
+        tagColors,
+        flatDepth: 3
+      }
+    },
+    slack: {
+      options: {
+        hideTags: true,
+        tagColors: {
+          start: 'good',
+          stop: 'danger'
+        },
+        iconURL: 'https://www.docker.com/sites/default/files/vertical_small.png'
+      }
+    }
+  }
 };
-
-if (process.env.LOG_TYPE === 'logfmt') {
-  logOptions.reporters.logfmt = {
-    reporter: require('logr-logfmt'),
-    options: {
-      color: true,
-      appColor: true
-    }
-  };
-} else {
-  logOptions.reporters.flat = {
-    reporter: require('logr-flat'),
-    options: {
-      timestamp: false,
-      appColor: true,
-      theme: {
-        keys: 'cyan'
-      },
-      tagColors,
-      flatDepth: 3
-    }
-  };
-}
-
-if (process.env.SENTRY_DSN) {
-  logOptions.reporters.sentry = {
-    reporter: logrSentry,
-    options: {
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.SENTRY_ENV,
-      logger: 'docker-watch',
-      filter: filterTags
-    }
-  };
-}
-if (process.env.SLACK_HOOK) {
-  logOptions.reporters.slack = {
-    reporter: logrSlack,
-    options: {
-      username: 'docker-watch',
-      slackHook: process.env.SLACK_HOOK,
-      filter: filterTags,
-      hideTags: true,
-      tagColors: {
-        start: 'good',
-        stop: 'danger'
-      },
-      iconURL: 'https://www.docker.com/sites/default/files/vertical_small.png'
-    }
-  };
-}
-const log = Logr.createLogger(logOptions);
+const log = logall(logOptions);
 const emitter = new DockerEvents({
   docker: new Dockerode()
 });
