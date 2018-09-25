@@ -41,7 +41,7 @@ const logOptions = {
     slack: {
       options: {
         hideTags: true,
-        username: 'docker-watch'
+        username: 'docker-watch',
         tagColors: {
           start: 'good',
           stop: 'danger'
