@@ -7,8 +7,6 @@ const get = require('lodash.get');
 
 const verboseMode = process.env.VERBOSE === '1';
 
-const alertTags = process.env.ALERT_TAGS ? process.env.ALERT_TAGS.split(',') : [];
-const filterTags = ['error', 'notify'].concat(alertTags);
 const tagColors = {
   //  green tags:
   start: 'bgGreen',
@@ -60,12 +58,6 @@ emitter.start();
 emitter.on('connect', () => {
   log(['connected'], 'connected to docker api');
 });
-if (process.env.SLACK_HOOK) {
-  log(`Slack reporter is watching tags: ${filterTags}`);
-}
-if (process.env.SENTRY_DSN) {
-  log(`Sentry is watching tags: ${filterTags}`);
-}
 
 const logEvents = {
   container: ['restart', 'start', 'stop', 'health_status', 'health_status: healthy', 'health_status: unhealthy', 'kill', 'die'],
