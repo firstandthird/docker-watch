@@ -50,12 +50,12 @@ const logOptions = {
   }
 };
 const log = logall(logOptions);
-const emitter = new DockerEvents({
-  docker: new Dockerode()
-});
+const docker = new Dockerode();
+const emitter = new DockerEvents({ docker });
 emitter.start();
 
-emitter.on('connect', () => {
+const intervals = {};
+emitter.on('connect', (msg, e) => {
   log(['connected'], 'connected to docker api');
 });
 
@@ -75,7 +75,8 @@ const cleanLogs = (message) => {
     delete message.Actor;
   }
 };
-
+const maxAge = 60000;
+const intervalLength = 5000;
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   if (!message) {
@@ -83,6 +84,29 @@ const handleMessage = (message) => {
   }
   const tags = [];
   const name = get(message, 'Actor.Attributes.name', '');
+  if (message.Action === 'start') {
+    const container = docker.getContainer(message.id);
+    intervals[name] = {
+      start: new Date().getTime(),
+      interval: setInterval(() => {
+        container.inspect((err, data) => {
+          if (err) {
+            return;
+          }
+          const state = data.State.Status;
+          const age = new Date().getTime() - intervals[name].start;
+          if (['new', 'pending'].includes(state)) {
+            if (age > maxAge) {
+              log(['docker', 'hanged'], `container ${name} has been in state ${state} for ${age}ms`);
+            }
+          } else {
+            clearInterval(intervals[name].interval);
+            delete intervals[name];
+          }
+        });
+      }, intervalLength)
+    };
+  }
   if (name) {
     tags.push(name);
   }
