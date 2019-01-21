@@ -75,8 +75,8 @@ const cleanLogs = (message) => {
     delete message.Actor;
   }
 };
-const maxAge = 60000;
-const intervalLength = 5000;
+const maxAge = 5 * 60000;
+const intervalLength = 60000;
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   if (!message) {
@@ -84,7 +84,7 @@ const handleMessage = (message) => {
   }
   const tags = [];
   const name = get(message, 'Actor.Attributes.name', '');
-  if (message.Action === 'start') {
+  if (message.Action === 'attach') {
     const container = docker.getContainer(message.id);
     intervals[name] = {
       start: new Date().getTime(),
