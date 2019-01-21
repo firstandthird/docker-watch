@@ -55,7 +55,7 @@ const emitter = new DockerEvents({ docker });
 emitter.start();
 
 const intervals = {};
-emitter.on('connect', (msg, e) => {
+emitter.on('connect', () => {
   log(['connected'], 'connected to docker api');
 });
 
