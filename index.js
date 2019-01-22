@@ -5,6 +5,9 @@ const Dockerode = require('dockerode');
 const logall = require('logr-all');
 const get = require('lodash.get');
 
+const maxAge = process.env.MAX_AGE || 5 * 60000;
+const intervalLength = process.env.INTERVAL_LENGTH || 60000;
+
 const verboseMode = process.env.VERBOSE === '1';
 
 const tagColors = {
@@ -75,8 +78,6 @@ const cleanLogs = (message) => {
     delete message.Actor;
   }
 };
-const maxAge = 5 * 60000;
-const intervalLength = 60000;
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   if (!message) {
