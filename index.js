@@ -98,7 +98,9 @@ const handleMessage = (message) => {
           const age = new Date().getTime() - intervals[name].start;
           if (['new', 'pending'].includes(state)) {
             if (age > maxAge) {
-              log(['docker', 'hanged'], `container ${name} has been in state ${state} for ${age}ms`);
+              log(['docker', 'error', 'hanged'], `container ${name} has been in state ${state} for ${age}ms`);
+              clearInterval(intervals[name].interval);
+              delete intervals[name];
             }
           } else {
             clearInterval(intervals[name].interval);
