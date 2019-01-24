@@ -85,31 +85,7 @@ const handleMessage = (message) => {
   }
   const tags = [];
   const name = get(message, 'Actor.Attributes.name', '');
-  if (message.Action === 'attach') {
-    const container = docker.getContainer(message.id);
-    intervals[name] = {
-      start: new Date().getTime(),
-      interval: setInterval(() => {
-        container.inspect((err, data) => {
-          if (err) {
-            return;
-          }
-          const state = data.State.Status;
-          const age = new Date().getTime() - intervals[name].start;
-          if (['new', 'pending'].includes(state)) {
-            if (age > maxAge) {
-              log(['docker', 'error', 'hanged'], `container ${name} has been in state ${state} for ${age}ms`);
-              clearInterval(intervals[name].interval);
-              delete intervals[name];
-            }
-          } else {
-            clearInterval(intervals[name].interval);
-            delete intervals[name];
-          }
-        });
-      }, intervalLength)
-    };
-  }
+
   if (name) {
     tags.push(name);
   }
@@ -140,3 +116,29 @@ const handleMessage = (message) => {
 };
 
 emitter.on('_message', handleMessage);
+emitter.on('create', (message) => {
+  const id = message.id;
+  const container = docker.getContainer(message.id);
+  intervals[id] = {
+    start: new Date().getTime(),
+    interval: setInterval(() => {
+      container.inspect((err, data) => {
+        if (err) {
+          return;
+        }
+        const state = data.State.Status;
+        const age = new Date().getTime() - intervals[id].start;
+        if (['new', 'pending'].includes(state)) {
+          if (age > maxAge) {
+            log(['docker', 'error', 'hanged'], `container ${id} has been in state ${state} for ${age}ms`);
+            clearInterval(intervals[id].interval);
+            delete intervals[id];
+          }
+        } else {
+          clearInterval(intervals[id].interval);
+          delete intervals[id];
+        }
+      });
+    }, intervalLength)
+  };
+});
