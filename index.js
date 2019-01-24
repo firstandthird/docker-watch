@@ -130,7 +130,7 @@ emitter.on('create', (message) => {
         const age = new Date().getTime() - intervals[id].start;
         if (['new', 'pending'].includes(state)) {
           if (age > maxAge) {
-            log(['docker', 'error', 'hanged'], `container ${id} has been in state ${state} for ${age}ms`);
+            log(['docker', 'error', 'hanged'], `container ${data.Name} has been in state ${state} for ${age}ms`);
             clearInterval(intervals[id].interval);
             delete intervals[id];
           }
