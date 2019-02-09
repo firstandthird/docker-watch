@@ -89,7 +89,7 @@ const handleMessage = (message) => {
   tags.push(message.Type);
   tags.push(message.Action);
   // if exit with error add an error tag:
-  if (message.Action === 'die' && message.Actor.Attributes.exitCode === '1') {
+  if (message.Action === 'die' && message.Actor.Attributes.exitCode !== '0') {
     tags.push('error');
   }
 
