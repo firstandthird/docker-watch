@@ -5,6 +5,9 @@ const Dockerode = require('dockerode');
 const logall = require('logr-all');
 const get = require('lodash.get');
 
+const maxAge = process.env.MAX_AGE || 5 * 60000;
+const intervalLength = process.env.INTERVAL_LENGTH || 60000;
+
 const verboseMode = process.env.VERBOSE === '1';
 
 const tagColors = {
@@ -50,11 +53,11 @@ const logOptions = {
   }
 };
 const log = logall(logOptions);
-const emitter = new DockerEvents({
-  docker: new Dockerode()
-});
+const docker = new Dockerode();
+const emitter = new DockerEvents({ docker });
 emitter.start();
 
+const intervals = {};
 emitter.on('connect', () => {
   log(['connected'], 'connected to docker api');
 });
@@ -75,7 +78,6 @@ const cleanLogs = (message) => {
     delete message.Actor;
   }
 };
-
 const handleMessage = (message) => {
   // non-verbose mode logs matching tags for 'start' and 'stop' events:
   if (!message) {
@@ -83,6 +85,7 @@ const handleMessage = (message) => {
   }
   const tags = [];
   const name = get(message, 'Actor.Attributes.name', '');
+
   if (name) {
     tags.push(name);
   }
@@ -113,3 +116,29 @@ const handleMessage = (message) => {
 };
 
 emitter.on('_message', handleMessage);
+emitter.on('create', (message) => {
+  const id = message.id;
+  const container = docker.getContainer(message.id);
+  intervals[id] = {
+    start: new Date().getTime(),
+    interval: setInterval(() => {
+      container.inspect((err, data) => {
+        if (err) {
+          return;
+        }
+        const state = data.State.Status;
+        const age = new Date().getTime() - intervals[id].start;
+        if (['new', 'pending'].includes(state)) {
+          if (age > maxAge) {
+            log(['docker', 'error', 'hanged'], `container ${data.Name} has been in state ${state} for ${age}ms`);
+            clearInterval(intervals[id].interval);
+            delete intervals[id];
+          }
+        } else {
+          clearInterval(intervals[id].interval);
+          delete intervals[id];
+        }
+      });
+    }, intervalLength)
+  };
+});

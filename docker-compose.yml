@@ -4,6 +4,7 @@ app:
     VERBOSE: 1
     SLACK_HOOK:
     SLACK_NOTIFY:
+    MAX_AGE:
+    INTERVAL_LENGTH:
   volumes:
     - '/var/run/docker.sock:/var/run/docker.sock:ro'
-
